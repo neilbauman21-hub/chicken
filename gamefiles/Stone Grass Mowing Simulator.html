@@ -1,5 +1,15 @@
-<html lang="en-us">
+﻿<html lang="en-us">
   <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
     <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@5765230aac4c0072a5b1021eab4a6a4b9df597f9/stone-grass-mowing-simulator/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -55,7 +65,7 @@
         done++;
         const percent = Math.floor((done / total) * 100);
         loadingText.innerText = `LOADING... ${percent}%`;
-        console.log("Premerged:", file, "→", merged);
+        console.log("Premerged:", file, "â†’", merged);
       }
 
       loadingText.style.display = "none";

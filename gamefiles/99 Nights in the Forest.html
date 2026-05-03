@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 
 <!-- Ultimate Game Stash file--> 
@@ -7,22 +7,32 @@
 
 <html lang="en-us">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bubbls/99itf@main/style.css"/>
 <!-- Yandex Games SDK -->
 <style>
-        /* Убираем выделение по нажатию клавиш */
+        /* Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð²Ñ‹Ð´ÐµÐ»ÐµÐ½Ð¸Ðµ Ð¿Ð¾ Ð½Ð°Ð¶Ð°Ñ‚Ð¸ÑŽ ÐºÐ»Ð°Ð²Ð¸Ñˆ */
         canvas:focus { 
             outline: none;
         }
 
         html, body {
-            /* Убираем отступы */
+            /* Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð¾Ñ‚ÑÑ‚ÑƒÐ¿Ñ‹ */
             padding: 0;
             margin: 0;
-            /* Отключаем скролл и лонгтап на IOS */
+            /* ÐžÑ‚ÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ ÑÐºÑ€Ð¾Ð»Ð» Ð¸ Ð»Ð¾Ð½Ð³Ñ‚Ð°Ð¿ Ð½Ð° IOS */
             overflow: hidden;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -31,7 +41,7 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
-            /* Ставим высоту на 100% */
+            /* Ð¡Ñ‚Ð°Ð²Ð¸Ð¼ Ð²Ñ‹ÑÐ¾Ñ‚Ñƒ Ð½Ð° 100% */
             height: 100%;
         }
     </style>
@@ -53,11 +63,21 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | 99Days</title>
     <style>
-        /* CSS stilleri (orijinal kodunuzdan alınabilir, burada yer kaplamaması için çıkarılmıştır) */
+        /* CSS stilleri (orijinal kodunuzdan alÄ±nabilir, burada yer kaplamamasÄ± iÃ§in Ã§Ä±karÄ±lmÄ±ÅŸtÄ±r) */
     </style>
 </head>
 <body>
@@ -74,9 +94,9 @@
         const hideFullScreenButton = "";
         const buildUrl = "https://cdn.jsdelivr.net/gh/bubbls/99itf@main/Build";
         const loaderUrl = buildUrl + "/Build.loader.js";
-        const cdnBaseUrl = "https://cdn.jsdelivr.net/gh/bubbls/99itf@main/"; // jsDelivr URL'sini kendi reponuza göre düzenleyin
+        const cdnBaseUrl = "https://cdn.jsdelivr.net/gh/bubbls/99itf@main/"; // jsDelivr URL'sini kendi reponuza gÃ¶re dÃ¼zenleyin
 
-        // Part dosyalarının listesi
+        // Part dosyalarÄ±nÄ±n listesi
         const dataParts = [
             cdnBaseUrl + "Build.data.br.part0",
             cdnBaseUrl + "Build.data.br.part1",
@@ -91,7 +111,7 @@
           cdnBaseUrl + "Build.wasm.br.part4",
         ];
 
-        // Dosya birleştirme fonksiyonu
+        // Dosya birleÅŸtirme fonksiyonu
         async function fetchAndCombineParts(partUrls) {
             const buffers = [];
             for (const url of partUrls) {
@@ -110,7 +130,7 @@
             return new Blob([combined], { type: 'application/octet-stream' });
         }
 
-        // Unity konfigürasyonu
+        // Unity konfigÃ¼rasyonu
         const config = {
             dataUrl: "", // Blob URL dinamik olarak ayarlanacak
             frameworkUrl: buildUrl + "/Build.framework.js",
@@ -221,13 +241,13 @@
         function ConsumePurchase() { console.warn("ConsumePurchase is not implemented"); }
         function ConsumePurchases() { console.warn("ConsumePurchases is not implemented"); }
 
-        // Unity başlatma ve dosya birleştirme
+        // Unity baÅŸlatma ve dosya birleÅŸtirme
         try {
             const script = document.createElement("script");
           
             script.src = loaderUrl;
             script.onload = async () => {
-                // Part dosyalarını birleştir
+                // Part dosyalarÄ±nÄ± birleÅŸtir
                 const dataBlob = await fetchAndCombineParts(dataParts);
                 const wasmBlob = await fetchAndCombineParts(wasmParts);
                 config.dataUrl = URL.createObjectURL(dataBlob);
@@ -242,14 +262,14 @@
                         myGameInstance = unityInstance;
                         loadingCover.style.display = "none";
                     }).catch((message) => {
-                        console.error("Unity yükleme hatası:", message);
+                        console.error("Unity yÃ¼kleme hatasÄ±:", message);
                     });
                 };
                 StartUnityInstance();
             };
             document.body.appendChild(script);
         } catch (error) {
-            console.error("Başlatma sırasında hata:", error);
+            console.error("BaÅŸlatma sÄ±rasÄ±nda hata:", error);
         }
 
         function InitGame() {
@@ -260,12 +280,12 @@
                     myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
                 }
             } catch (error) {
-                console.error("InitGame sırasında hata:", error);
+                console.error("InitGame sÄ±rasÄ±nda hata:", error);
             }
         }
 
         window.addEventListener("unhandledrejection", function(event) {
-            console.warn("Hata es geçildi:", event.reason);
+            console.warn("Hata es geÃ§ildi:", event.reason);
             event.preventDefault();
         });
     </script>
@@ -338,7 +358,7 @@
     opacity: 1;
   }
   #close-ad::before {
-    content: '↑'; /* Up arrow */
+    content: 'â†‘'; /* Up arrow */
     margin-right: 4px;
   }
 
@@ -411,7 +431,7 @@
           clearInterval(t);
           closeBtn.disabled = false;
           closeBtn.classList.add('enabled');
-          closeBtn.textContent = 'Close ↑';
+          closeBtn.textContent = 'Close â†‘';
         }
       }, 1000);
     }

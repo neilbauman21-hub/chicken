@@ -1,7 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en-us">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
+<!--\ Google\ tag\ \(gtag\.js\)\ -->\n<script\ async\ src="https://www\.googletagmanager\.com/gtag/js\?id=G-LM67KGEJRK"></script>\n<script>\n\ \ window\.dataLayer\ =\ window\.dataLayer\ \|\|\ \[];\n\ \ function\ gtag\(\)\{dataLayer\.push\(arguments\);}\n\ \ gtag\('js',\ new\ Date\(\)\);\n\n\ \ gtag\('config',\ 'G-LM67KGEJRK'\);\n</script>\n
 <base href="https://cdn.jsdelivr.net/gh/genizy/brainrot@main/weapon-upgrade-rush/">
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -36,7 +47,7 @@
             frameworkUrl: buildUrl + "/63967f7446edb2ba7d730e3411beab8f.js.unityweb",
             codeUrl: buildUrl + "/efac867636496bf38cbfcbd8c6e552a7.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
-            companyName: "Butcher’s Games",
+            companyName: "Butcherâ€™s Games",
             productName: "Weapon Upgrade Rush",
             productVersion: "1.0",
         };
@@ -519,8 +530,8 @@
                         jsonEntries.isDefault = res.default;
                         jsonEntries.isInvertSortOrder = res.description.invert_sort_order;
                         jsonEntries.decimalOffset = res.description.score_format.options.decimal_offset;
-                        jsonEntries.type = res.description.type; // Не определяется на момент 18.07.23
-                        //jsonEntries.title = res.title; // Реализуйте по предпочтениям
+                        jsonEntries.type = res.description.type; // ÐÐµ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÑÐµÑ‚ÑÑ Ð½Ð° Ð¼Ð¾Ð¼ÐµÐ½Ñ‚ 18.07.23
+                        //jsonEntries.title = res.title; // Ð ÐµÐ°Ð»Ð¸Ð·ÑƒÐ¹Ñ‚Ðµ Ð¿Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ñ‚ÐµÐ½Ð¸ÑÐ¼
 
                         return leaderboard.getLeaderboardEntries(nameLB, {
                             quantityTop: quantityTop,
