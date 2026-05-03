@@ -1,23 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en-us">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
+<!--\ Google\ tag\ \(gtag\.js\)\ -->\n<script\ async\ src="https://www\.googletagmanager\.com/gtag/js\?id=G-LM67KGEJRK"></script>\n<script>\n\ \ window\.dataLayer\ =\ window\.dataLayer\ \|\|\ \[];\n\ \ function\ gtag\(\)\{dataLayer\.push\(arguments\);}\n\ \ gtag\('js',\ new\ Date\(\)\);\n\n\ \ gtag\('config',\ 'G-LM67KGEJRK'\);\n</script>\n
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/awaiblecomponent/575@main/style.css"/>
 
 <style>
-        /* Убираем выделение по нажатию клавиш */
+        /* Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð²Ñ‹Ð´ÐµÐ»ÐµÐ½Ð¸Ðµ Ð¿Ð¾ Ð½Ð°Ð¶Ð°Ñ‚Ð¸ÑŽ ÐºÐ»Ð°Ð²Ð¸Ñˆ */
         canvas:focus {
             outline: none;
         }
 
         html, body {
-            /* Убираем отступы */
+            /* Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð¾Ñ‚ÑÑ‚ÑƒÐ¿Ñ‹ */
             padding: 0;
             margin: 0;
-            /* Отключаем скролл и лонгтап на IOS */
+            /* ÐžÑ‚ÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ ÑÐºÑ€Ð¾Ð»Ð» Ð¸ Ð»Ð¾Ð½Ð³Ñ‚Ð°Ð¿ Ð½Ð° IOS */
             overflow: hidden;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -26,7 +37,7 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
-            /* Ставим высоту на 100% */
+            /* Ð¡Ñ‚Ð°Ð²Ð¸Ð¼ Ð²Ñ‹ÑÐ¾Ñ‚Ñƒ Ð½Ð° 100% */
             height: 100%;
         }
     </style>
@@ -97,7 +108,7 @@ fetchAndMergeWasm().then(blobUrl => {
             myGameInstance = unityInstance;
             document.querySelector("#loading-cover").style.display = "none";
         }).catch((message) => {
-            console.error("Unity yükleme hatası:", message);
+            console.error("Unity yÃ¼kleme hatasÄ±:", message);
         });
     };
     document.body.appendChild(script);
@@ -132,13 +143,13 @@ fetchAndMergeWasm().then(blobUrl => {
             
         }
 
-        // Фоновое изображение при загрузке игры. При сборке билда код меняется взависимости от настроек проекта.
+        // Ð¤Ð¾Ð½Ð¾Ð²Ð¾Ðµ Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð¿Ñ€Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐµ Ð¸Ð³Ñ€Ñ‹. ÐŸÑ€Ð¸ ÑÐ±Ð¾Ñ€ÐºÐµ Ð±Ð¸Ð»Ð´Ð° ÐºÐ¾Ð´ Ð¼ÐµÐ½ÑÐµÑ‚ÑÑ Ð²Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚Ð¸ Ð¾Ñ‚ Ð½Ð°ÑÑ‚Ñ€Ð¾ÐµÐº Ð¿Ñ€Ð¾ÐµÐºÑ‚Ð°.
         
         loadingCover.style.background = "url('background.png') center / cover";
 
         loadingCover.style.display = "";
 
-        // Выключаем появление меню при правом клике мыши
+        // Ð’Ñ‹ÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ Ð¿Ð¾ÑÐ²Ð»ÐµÐ½Ð¸Ðµ Ð¼ÐµÐ½ÑŽ Ð¿Ñ€Ð¸ Ð¿Ñ€Ð°Ð²Ð¾Ð¼ ÐºÐ»Ð¸ÐºÐµ Ð¼Ñ‹ÑˆÐ¸
           document.addEventListener('contextmenu', event => event.preventDefault());
 
         function FocusGame() {
@@ -183,7 +194,7 @@ fetchAndMergeWasm().then(blobUrl => {
         
         let cloudSaves = 'noData';
         let paymentsData = 'none';
-        let playerData = 'noData'; // Varsayılan playerData tanımı
+        let playerData = 'noData'; // VarsayÄ±lan playerData tanÄ±mÄ±
         let player = null;
         let payments = null;
         let initGame = false;
@@ -258,13 +269,13 @@ function RewardedShow(rewardId) {
                     myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
                 }
             } catch (error) {
-                console.error("InitGame sırasında hata:", error);
+                console.error("InitGame sÄ±rasÄ±nda hata:", error);
             }
         }
 
         // 
         window.addEventListener("unhandledrejection", function(event) {
-            console.warn("Hata es geçildi:", event.reason);
+            console.warn("Hata es geÃ§ildi:", event.reason);
             event.preventDefault();
         });
     </script>

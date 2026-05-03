@@ -1,6 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-us">
   <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LM67KGEJRK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LM67KGEJRK');
+</script>
+
     <base href="https://cdn.jsdelivr.net/gh/gn-math/assets@main/351/">
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -707,7 +717,7 @@
            // trigger _callback_adDismissed to game
            doGMLCallback( pCallbackAdDismissed, { id:adId } );
          },
-         "adViewed": () => {                  // Player watched the ad–give them the reward.
+         "adViewed": () => {                  // Player watched the adâ€“give them the reward.
            console.log("adViewed");
            // trigger _callback_adViewed to game
            doGMLCallback( pCallbackAdViewed, { id:adId } );
