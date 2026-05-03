@@ -3303,7 +3303,7 @@ const games =`
     <img src="gameimages/geometrydash.png" alt="Geometry Dash Cover">
     <div>Geometry Dash</div>
 </a>
-<a class="game-link" href="gamefiles/geometrydash.html">
+<a class="game-link" href="gamefiles/escaperoad3.html">
     <img src="gameimages/escaperoad3.png" alt="Escape Road 3 Cover">
     <div>Escape Road 3</div>
 </a>
