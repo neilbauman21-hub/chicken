@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>music — ckv</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0b0b0d;
+            color: #e2e2e6;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        .genre-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 40px;
+            background: #141417;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            overflow-x: auto;
+            flex-shrink: 0;
+            scrollbar-width: none;
+        }
+
+        .genre-bar::-webkit-scrollbar { display: none; }
+
+        .g-btn {
+            padding: 4px 11px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            color: #7a7a82;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.12s, border-color 0.12s, background 0.12s;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+
+        .g-btn:hover { color: #e2e2e6; border-color: rgba(255,255,255,0.18); }
+
+        .g-btn.active {
+            background: #f5a623;
+            border-color: #f5a623;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .content {
+            height: calc(100% - 40px);
+            position: relative;
+        }
+
+        #bc-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #000;
+        }
+
+        .loading-state,
+        .no-proxy-state {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #7a7a82;
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .no-proxy-state strong {
+            color: #e2e2e6;
+            font-size: 15px;
+        }
+
+        .no-proxy-state a {
+            color: #f5a623;
+            text-decoration: none;
+        }
+
+        .no-proxy-state a:hover { text-decoration: underline; }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: #f5a623;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="genre-bar" id="genre-bar"></div>
+    <div class="content">
+        <div class="loading-state" id="loading-state">
+            <div class="spinner"></div>
+            <span>connecting...</span>
+        </div>
+        <div class="no-proxy-state" id="no-proxy-state" style="display:none">
+            <strong>needs the proxy to run</strong>
+            <span>deploy with WISP + BARE servers to enable music</span>
+            <a href="https://bandcamp.com/discover" target="_blank" rel="noopener">open bandcamp.com/discover directly</a>
+        </div>
+        <iframe id="bc-frame" src="about:blank" allow="autoplay; fullscreen" allowfullscreen style="display:none"></iframe>
+    </div>
+
+    <script src="/cdn/scramjet.client.js"></script>
+    <script>
+        const genres = [
+            { label: 'all',          slug: '' },
+            { label: 'electronic',   slug: 'electronic' },
+            { label: 'ambient',      slug: 'ambient' },
+            { label: 'hip-hop',      slug: 'hip-hop-rap' },
+            { label: 'rock',         slug: 'rock' },
+            { label: 'metal',        slug: 'metal' },
+            { label: 'folk',         slug: 'folk' },
+            { label: 'jazz',         slug: 'jazz-blues' },
+            { label: 'pop',          slug: 'pop' },
+            { label: 'punk',         slug: 'punk' },
+            { label: 'experimental', slug: 'experimental' },
+            { label: 'classical',    slug: 'classical-ancient' },
+            { label: 'world',        slug: 'world' },
+        ];
+
+        const genreBar     = document.getElementById('genre-bar');
+        const frame        = document.getElementById('bc-frame');
+        const loadingState = document.getElementById('loading-state');
+        const noProxyState = document.getElementById('no-proxy-state');
+
+        let scram       = null;
+        let activeSlug  = '';
+
+        genres.forEach((g, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'g-btn' + (i === 0 ? ' active' : '');
+            btn.textContent = g.label;
+            btn.dataset.slug = g.slug;
+            genreBar.appendChild(btn);
+        });
+
+        genreBar.addEventListener('click', e => {
+            const btn = e.target.closest('.g-btn');
+            if (!btn) return;
+            document.querySelectorAll('.g-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            navigate(btn.dataset.slug);
+        });
+
+        function bcUrl(slug) {
+            return 'https://bandcamp.com/discover' + (slug ? '/' + slug : '');
+        }
+
+        function navigate(slug) {
+            activeSlug = slug;
+            if (!scram) return;
+            frame.src = scram.encodeUrl(bcUrl(slug));
+        }
+
+        async function init() {
+            if (typeof ScramjetController === 'undefined') {
+                loadingState.style.display = 'none';
+                noProxyState.style.display = 'flex';
+                return;
+            }
+
+            scram = new ScramjetController({
+                prefix: '/service/',
+                bundle: '/cdn/scramjet.client.js',
+                worker: '/cdn/scramjet.worker.js',
+                thread: '/cdn/scramjet.thread.js',
+                codecs: '/cdn/scramjet.codecs.js',
+                wasm:   '/cdn/scramjet.wasm.js',
+                sync:   '/cdn/scramjet.sync.js',
+                flags:  { serviceworker: true },
+            });
+
+            try {
+                await scram.init('/sw.js');
+            } catch (_) {
+                // SW already registered from parent page — fine, encodeUrl still works
+            }
+
+            loadingState.style.display = 'none';
+            frame.style.display = 'block';
+            navigate(activeSlug);
+        }
+
+        init();
+    </script>
+</body>
+</html>

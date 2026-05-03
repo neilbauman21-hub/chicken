@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>algorithm debug — ckv</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0b0b0d;
+            --surface: #141417;
+            --surface-alt: #1d1d21;
+            --accent: #f5a623;
+            --green: #4ade80;
+            --blue: #60a5fa;
+            --red: #f87171;
+            --text: #e2e2e6;
+            --text-muted: #7a7a82;
+            --border: rgba(255,255,255,0.07);
+            --mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            font-size: 13px;
+            transition: color 0.15s;
+        }
+
+        .back-link:hover { color: var(--text); }
+
+        .top-bar h1 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--accent);
+            font-family: var(--mono);
+        }
+
+        .top-bar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: color 0.15s;
+        }
+
+        .refresh-btn:hover { color: var(--text); }
+
+        .status-pill {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--green);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .status-pill.empty {
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--red);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+
+        section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        section.wide {
+            grid-column: 1 / -1;
+        }
+
+        .section-title {
+            font-family: var(--mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .history-item:last-child { border-bottom: none; }
+
+        .history-title { color: var(--text); flex: 1; min-width: 0; }
+
+        .history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        .tag-chip {
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(245, 166, 35, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(245, 166, 35, 0.2);
+        }
+
+        .tag-chip.dim {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+        }
+
+        .bar-label {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            width: 90px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--surface-alt);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .bar-count {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            width: 24px;
+            flex-shrink: 0;
+        }
+
+        .candidates-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .candidates-header input {
+            flex: 1;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 12px;
+            padding: 5px 10px;
+            outline: none;
+            font-family: var(--mono);
+            transition: border-color 0.15s;
+        }
+
+        .candidates-header input:focus { border-color: var(--accent); }
+        .candidates-header input::placeholder { color: var(--text-muted); }
+
+        .sort-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .sort-btn {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.12s;
+        }
+
+        .sort-btn.active {
+            color: var(--accent);
+            border-color: rgba(245,166,35,0.3);
+        }
+
+        .candidate-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        .candidate-row:last-child { border-bottom: none; }
+
+        .candidate-rank {
+            font-family: var(--mono);
+            color: var(--text-muted);
+            width: 28px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .candidate-rank.top { color: var(--accent); font-weight: 700; }
+
+        .candidate-title {
+            flex: 1;
+            min-width: 0;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .candidate-score {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--green);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+            flex-shrink: 0;
+        }
+
+        .candidate-score.zero {
+            background: rgba(248,113,113,0.08);
+            color: var(--red);
+            border-color: rgba(248,113,113,0.15);
+        }
+
+        .candidate-why {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            max-width: 220px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .final-picks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .pick-card {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .pick-card.top1 { border-color: rgba(245,166,35,0.4); }
+
+        .pick-num {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .pick-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .pick-score-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .pick-score {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--green);
+        }
+
+        .pick-reason {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .whatif-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .whatif-wrap input {
+            flex: 1;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .whatif-wrap input:focus { border-color: var(--accent); }
+        .whatif-wrap input::placeholder { color: var(--text-muted); }
+
+        .whatif-result {
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.9;
+            color: var(--text-muted);
+        }
+
+        .whatif-result span { color: var(--text); }
+        .whatif-result .hl { color: var(--accent); }
+        .whatif-result .grn { color: var(--green); }
+        .whatif-result .red { color: var(--red); }
+
+        .empty-state {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .empty-state a {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 720px) {
+            main { grid-template-columns: 1fr; }
+            section.wide { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a class="back-link" href="/">&#8592; ckv</a>
+        <h1>algorithm_debug.js</h1>
+        <div class="top-bar-right">
+            <span class="status-pill" id="status-pill">loading...</span>
+            <button class="refresh-btn" id="refresh-btn">re-run</button>
+        </div>
+    </div>
+
+    <main>
+        <section id="history-section">
+            <div class="section-title">play history (last 20 used)</div>
+            <div id="history-list"><div class="empty-state">no history yet — <a href="/">play some games first</a></div></div>
+        </section>
+
+        <section id="tagmap-section">
+            <div class="section-title">tag frequency from history</div>
+            <div id="tag-bars"><div class="empty-state">no data</div></div>
+        </section>
+
+        <section class="wide" id="candidates-section">
+            <div class="section-title">final suggestions (top 8)</div>
+            <div class="final-picks" id="final-picks"><div class="empty-state">no suggestions — need at least 2 plays</div></div>
+        </section>
+
+        <section class="wide" id="all-candidates-section">
+            <div class="candidates-header">
+                <div class="section-title" style="margin:0">all scored candidates</div>
+                <input id="cand-filter" placeholder="filter titles..." autocomplete="off">
+                <div class="sort-btns">
+                    <button class="sort-btn active" data-sort="score">by score</button>
+                    <button class="sort-btn" data-sort="alpha">a-z</button>
+                </div>
+            </div>
+            <div id="candidates-list"><div class="empty-state">no data</div></div>
+        </section>
+
+        <section class="wide" id="whatif-section">
+            <div class="section-title">what if — test any title</div>
+            <div class="whatif-wrap">
+                <input id="whatif-input" placeholder="type any game name and see how it scores..." autocomplete="off">
+            </div>
+            <div class="whatif-result" id="whatif-result">waiting for input...</div>
+        </section>
+    </main>
+
+    <script src="/games.js"></script>
+    <script>
+        const HISTORY_KEY = 'ckv_history';
+
+        const tagKeywords = {
+            action:     ['shoot', 'gun', 'battle', 'war', 'combat', 'fight', 'doom', 'kill', 'ultrakill', 'hotline', 'buckshot', 'counter', 'sniper', 'fps', 'rampage', 'assault'],
+            puzzle:     ['puzzle', '2048', 'tetris', 'match', 'merge', 'logic', 'block', 'rope', 'escape', 'brain', 'color', 'colour'],
+            racing:     ['car', 'race', 'drift', 'drive', 'truck', 'moto', 'rider', 'speed', 'stunt', 'rally', 'kart'],
+            sports:     ['soccer', 'football', 'basketball', 'tennis', 'baseball', 'golf', 'bowling', 'pool', 'volleyball', 'cricket', 'rugby', 'ping pong', 'archery'],
+            io:         ['.io', 'agar', 'slither', 'krunker', 'shellshock', 'ev.io', 'paper.io'],
+            horror:     ['fnaf', 'freddy', 'backroom', 'nightmare', 'scary', 'amanda', 'baldi', 'horror', 'abandoned', 'arthurs', "arthur's"],
+            idle:       ['clicker', 'idle', 'capitalist', 'cookie', 'tycoon', 'incremental', 'miner', 'factory'],
+            platformer: ['dash', 'geometry', 'mario', 'platform', 'sonic', 'celeste', 'climb', 'jump king', 'getting over'],
+            rpg:        ['rpg', 'quest', 'adventure', 'tale', 'crossing', 'pokemon', 'zelda', 'dungeon', 'academytale'],
+            sandbox:    ['minecraft', 'terraria', 'build', 'craft', 'playground', 'people'],
+            multiplayer:['2 player', '1v1', 'among us', 'battle royale', '1 on 1', 'duo', 'tag'],
+        };
+
+        function getTagsForTitle(title) {
+            const lower = title.toLowerCase();
+            const found = [];
+            for (const [tag, keywords] of Object.entries(tagKeywords)) {
+                if (keywords.some(kw => lower.includes(kw))) found.push(tag);
+            }
+            return found;
+        }
+
+        function getHistory() {
+            try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+            catch { return []; }
+        }
+
+        function parseAllGames() {
+            if (typeof games === 'undefined') return [];
+            const div = document.createElement('div');
+            div.innerHTML = games;
+            return Array.from(div.querySelectorAll('.game-link')).map(a => ({
+                href: a.getAttribute('href') || '',
+                title: a.querySelector('div')?.textContent?.trim() || '',
+            }));
+        }
+
+        function computeTagCounts(history) {
+            const counts = {};
+            history.slice(0, 20).forEach(g => {
+                getTagsForTitle(g.title).forEach(tag => {
+                    counts[tag] = (counts[tag] || 0) + 1;
+                });
+            });
+            return counts;
+        }
+
+        function scoreGame(game, tagCounts) {
+            const tags = getTagsForTitle(game.title);
+            let score = 0;
+            const breakdown = [];
+            tags.forEach(tag => {
+                const n = tagCounts[tag] || 0;
+                score += n;
+                if (n > 0) breakdown.push(`${tag}(${n})`);
+            });
+            return { score, breakdown, tags };
+        }
+
+        let allGames = [];
+        let sortMode = 'score';
+        let candFilter = '';
+
+        function run() {
+            if (!allGames.length) allGames = parseAllGames();
+            const history = getHistory();
+            const tagCounts = computeTagCounts(history);
+            const played = new Set(history.map(g => g.href));
+
+            renderStatus(history.length);
+            renderHistory(history, tagCounts);
+            renderTagBars(tagCounts);
+            const scored = renderCandidates(allGames, tagCounts, played);
+            renderFinalPicks(scored);
+        }
+
+        function renderStatus(histLen) {
+            const pill = document.getElementById('status-pill');
+            if (histLen === 0) {
+                pill.textContent = 'no history';
+                pill.className = 'status-pill empty';
+            } else {
+                pill.textContent = `${histLen} plays recorded`;
+                pill.className = 'status-pill';
+            }
+        }
+
+        function renderHistory(history, tagCounts) {
+            const el = document.getElementById('history-list');
+            if (!history.length) {
+                el.innerHTML = '<div class="empty-state">no history yet — <a href="/">play some games first</a></div>';
+                return;
+            }
+            el.innerHTML = '';
+            history.slice(0, 20).forEach(g => {
+                const tags = getTagsForTitle(g.title);
+                const row = document.createElement('div');
+                row.className = 'history-item';
+                const title = document.createElement('div');
+                title.className = 'history-title';
+                title.textContent = g.title;
+                const tagWrap = document.createElement('div');
+                tagWrap.className = 'history-tags';
+                if (tags.length) {
+                    tags.forEach(t => {
+                        const chip = document.createElement('span');
+                        chip.className = 'tag-chip' + (tagCounts[t] > 1 ? '' : ' dim');
+                        chip.textContent = t;
+                        tagWrap.appendChild(chip);
+                    });
+                } else {
+                    const chip = document.createElement('span');
+                    chip.className = 'tag-chip dim';
+                    chip.textContent = 'untagged';
+                    tagWrap.appendChild(chip);
+                }
+                row.appendChild(title);
+                row.appendChild(tagWrap);
+                el.appendChild(row);
+            });
+        }
+
+        function renderTagBars(tagCounts) {
+            const el = document.getElementById('tag-bars');
+            const entries = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+            if (!entries.length) {
+                el.innerHTML = '<div class="empty-state">no tags extracted yet</div>';
+                return;
+            }
+            el.innerHTML = '';
+            const max = entries[0][1];
+            entries.forEach(([tag, count]) => {
+                const pct = Math.round((count / max) * 100);
+                const row = document.createElement('div');
+                row.className = 'bar-row';
+                row.innerHTML = `
+                    <span class="bar-label">${tag}</span>
+                    <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+                    <span class="bar-count">${count}</span>
+                `;
+                el.appendChild(row);
+            });
+
+            const allTags = Object.keys(tagKeywords);
+            const missing = allTags.filter(t => !tagCounts[t]);
+            if (missing.length) {
+                const note = document.createElement('div');
+                note.style.cssText = 'margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--text-muted)';
+                note.textContent = 'no plays in: ' + missing.join(', ');
+                el.appendChild(note);
+            }
+        }
+
+        function renderCandidates(allGames, tagCounts, played) {
+            const el = document.getElementById('candidates-list');
+
+            const scored = allGames
+                .filter(g => !played.has(g.href))
+                .map(g => ({ ...g, ...scoreGame(g, tagCounts) }))
+                .filter(g => g.score > 0);
+
+            const unscored = allGames
+                .filter(g => !played.has(g.href))
+                .map(g => ({ ...g, ...scoreGame(g, tagCounts) }))
+                .filter(g => g.score === 0);
+
+            const all = [...scored.sort((a, b) => b.score - a.score), ...unscored];
+
+            function redraw() {
+                const q = candFilter.trim().toLowerCase();
+                const sorted = sortMode === 'alpha'
+                    ? [...all].sort((a, b) => a.title.localeCompare(b.title))
+                    : all;
+                const filtered = q ? sorted.filter(g => g.title.toLowerCase().includes(q)) : sorted;
+
+                el.innerHTML = '';
+                if (!filtered.length) {
+                    el.innerHTML = '<div class="empty-state">nothing matches</div>';
+                    return;
+                }
+                filtered.forEach((g, i) => {
+                    const rank = sortMode === 'score' ? all.indexOf(g) + 1 : i + 1;
+                    const row = document.createElement('div');
+                    row.className = 'candidate-row';
+                    row.innerHTML = `
+                        <span class="candidate-rank ${rank <= 8 && sortMode === 'score' ? 'top' : ''}">#${rank}</span>
+                        <span class="candidate-title">${g.title}</span>
+                        <span class="candidate-score ${g.score === 0 ? 'zero' : ''}">score: ${g.score}</span>
+                        <span class="candidate-why">${g.breakdown.length ? g.breakdown.join(' + ') : g.tags.length ? g.tags.join(' ') + ' (no history overlap)' : 'untagged'}</span>
+                    `;
+                    el.appendChild(row);
+                });
+            }
+
+            redraw();
+
+            document.getElementById('cand-filter').addEventListener('input', e => {
+                candFilter = e.target.value;
+                redraw();
+            });
+
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    sortMode = btn.dataset.sort;
+                    redraw();
+                });
+            });
+
+            return scored.slice(0, 8);
+        }
+
+        function renderFinalPicks(picks) {
+            const el = document.getElementById('final-picks');
+            if (!picks.length) {
+                el.innerHTML = '<div class="empty-state">need at least 2 plays with tag overlap to generate suggestions</div>';
+                return;
+            }
+            el.innerHTML = '';
+            picks.forEach((g, i) => {
+                const card = document.createElement('div');
+                card.className = 'pick-card' + (i === 0 ? ' top1' : '');
+                const reasonLines = g.breakdown.map(b => {
+                    const [tag, n] = b.replace(')', '').split('(');
+                    return `${tag} matched ${n}x in history`;
+                });
+                card.innerHTML = `
+                    <div class="pick-num">pick #${i + 1} ${i === 0 ? '(top)' : ''}</div>
+                    <div class="pick-title">${g.title}</div>
+                    <div class="pick-score-row">
+                        <span class="pick-score">score: ${g.score}</span>
+                    </div>
+                    <div class="pick-reason">${reasonLines.join('\n')}</div>
+                `;
+                el.appendChild(card);
+            });
+        }
+
+        function renderWhatIf(title, tagCounts) {
+            const el = document.getElementById('whatif-result');
+            if (!title.trim()) { el.innerHTML = 'waiting for input...'; return; }
+            const tags = getTagsForTitle(title);
+            if (!tags.length) {
+                el.innerHTML = `<span class="red">no tags found for "${title}"</span>\ntitles are matched by keywords — try words like "shoot", "race", "puzzle", etc.`;
+                return;
+            }
+            const history = getHistory();
+            const tc = tagCounts || computeTagCounts(history);
+            const { score, breakdown } = scoreGame({ title }, tc);
+            const played = new Set(history.map(g => g.href));
+            const allScored = allGames
+                .filter(g => !played.has(g.href))
+                .map(g => ({ ...g, score: scoreGame(g, tc).score }))
+                .filter(g => g.score > 0)
+                .sort((a, b) => b.score - a.score);
+            const rank = allScored.findIndex(g => g.score <= score) + 1;
+
+            let out = `title:  <span>"${title}"</span>\n`;
+            out += `tags:   <span class="hl">${tags.join(', ')}</span>\n`;
+            out += `score:  <span class="grn">${score}</span>`;
+            if (score === 0) out += ' <span class="red">(would not appear in suggestions)</span>';
+            out += '\n';
+            if (breakdown.length) out += `why:    <span>${breakdown.join(' + ')}</span>\n`;
+            if (score > 0) out += `rank:   <span class="grn">#${rank || '?'} of ${allScored.length} eligible games</span>`;
+            el.innerHTML = out;
+        }
+
+        document.getElementById('whatif-input').addEventListener('input', e => {
+            const history = getHistory();
+            const tc = computeTagCounts(history);
+            renderWhatIf(e.target.value, tc);
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', run);
+
+        run();
+    </script>
+</body>
+</html>

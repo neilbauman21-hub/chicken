@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse the web through Chicken Kings Vault">
+    <meta property="og:title" content="Browse — Chicken Kings Vault">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Browse — Chicken Kings Vault</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0b0b0d;
+            --surface: #141417;
+            --surface-alt: #1d1d21;
+            --accent: #f5a623;
+            --text: #e2e2e6;
+            --text-muted: #7a7a82;
+            --border: rgba(255,255,255,0.07);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+        }
+
+        .nav-btn {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 13px;
+            padding: 5px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.12s;
+            flex-shrink: 0;
+        }
+
+        .nav-btn:hover { color: var(--text); }
+        .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+        #url-bar {
+            flex: 1;
+            min-width: 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 14px;
+            padding: 6px 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        #url-bar:focus { border-color: var(--accent); }
+        #url-bar::placeholder { color: var(--text-muted); }
+
+        #go-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: opacity 0.15s;
+        }
+
+        #go-btn:hover { opacity: 0.88; }
+
+        .home-link {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: color 0.12s;
+        }
+
+        .home-link:hover { color: var(--text); }
+
+        .frame-wrap {
+            height: calc(100vh - 50px);
+            background: #000;
+        }
+
+        #proxy-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .landing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 14px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .landing strong {
+            color: var(--text);
+            font-size: 16px;
+        }
+
+        .loading-bar {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease, opacity 0.3s;
+            z-index: 999;
+            opacity: 0;
+        }
+
+        .loading-bar.active {
+            opacity: 1;
+            width: 70%;
+        }
+
+        .loading-bar.done {
+            width: 100%;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button class="nav-btn" id="back-btn" disabled title="back">&#8592;</button>
+        <button class="nav-btn" id="fwd-btn"  disabled title="forward">&#8594;</button>
+        <button class="nav-btn" id="reload-btn" title="reload">&#8635;</button>
+        <input  id="url-bar" type="text" placeholder="enter a URL..." autocomplete="off" spellcheck="false">
+        <button id="go-btn">go</button>
+        <button class="nav-btn" id="fs-btn" title="fullscreen">&#9974;</button>
+        <a class="home-link" href="/">home</a>
+    </div>
+    <div id="loading-bar" class="loading-bar"></div>
+    <div class="frame-wrap" id="frame-wrap">
+        <div class="landing" id="landing">
+            <strong>enter a URL to start browsing</strong>
+            <span>traffic routes through the site proxy</span>
+        </div>
+        <iframe id="proxy-frame" style="display:none" allowfullscreen allow="fullscreen; autoplay; clipboard-write"></iframe>
+    </div>
+
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.src = '/cdn/scramjet.client.js';
+            s.onerror = function() {};
+            document.head.appendChild(s);
+        })();
+    </script>
+    <script>
+        const backBtn   = document.getElementById('back-btn');
+        const fwdBtn    = document.getElementById('fwd-btn');
+        const reloadBtn = document.getElementById('reload-btn');
+        const urlBar    = document.getElementById('url-bar');
+        const goBtn     = document.getElementById('go-btn');
+        const fsBtn     = document.getElementById('fs-btn');
+        const frame     = document.getElementById('proxy-frame');
+        const landing   = document.getElementById('landing');
+        const loadBar   = document.getElementById('loading-bar');
+
+        let navHistory = [];
+        let navPos     = -1;
+        let scram      = null;
+        let ready      = false;
+
+        async function initScramjet() {
+            if (typeof ScramjetController === 'undefined') return;
+            scram = new ScramjetController({
+                prefix:  '/service/',
+                bundle:  '/cdn/scramjet.client.js',
+                worker:  '/cdn/scramjet.worker.js',
+                thread:  '/cdn/scramjet.thread.js',
+                codecs:  '/cdn/scramjet.codecs.js',
+                wasm:    '/cdn/scramjet.wasm.js',
+                sync:    '/cdn/scramjet.sync.js',
+                flags: { serviceworker: true },
+            });
+            try {
+                await scram.init('/sw.js');
+                ready = true;
+            } catch (e) {
+                console.warn('Scramjet init failed, SW may already be registered', e);
+                ready = true;
+            }
+        }
+
+        initScramjet();
+
+        function normalizeUrl(raw) {
+            raw = raw.trim();
+            if (!raw) return null;
+            if (!/^https?:\/\//i.test(raw)) {
+                if (raw.includes('.') && !raw.includes(' ')) return 'https://' + raw;
+                return 'https://www.google.com/search?q=' + encodeURIComponent(raw);
+            }
+            return raw;
+        }
+
+        function showLoadBar() {
+            loadBar.classList.remove('done');
+            loadBar.classList.add('active');
+        }
+
+        function hideLoadBar() {
+            loadBar.classList.remove('active');
+            loadBar.classList.add('done');
+            setTimeout(() => loadBar.classList.remove('done'), 400);
+        }
+
+        function updateNavBtns() {
+            backBtn.disabled = navPos <= 0;
+            fwdBtn.disabled  = navPos >= navHistory.length - 1;
+        }
+
+        async function navigate(url) {
+            if (!url) return;
+            landing.style.display = 'none';
+            frame.style.display   = 'block';
+            showLoadBar();
+
+            let dest = url;
+            if (ready && scram) {
+                try { dest = scram.encodeUrl(url); }
+                catch {}
+            }
+
+            frame.src = dest;
+            urlBar.value = url;
+
+            navHistory = navHistory.slice(0, navPos + 1);
+            navHistory.push(url);
+            navPos = navHistory.length - 1;
+            updateNavBtns();
+        }
+
+        frame.addEventListener('load', () => {
+            hideLoadBar();
+            try {
+                const decoded = ready && scram ? scram.decodeUrl(frame.contentWindow.location.href) : frame.contentWindow.location.href;
+                if (decoded && decoded !== 'about:blank') {
+                    urlBar.value = decoded;
+                }
+            } catch {}
+        });
+
+        goBtn.addEventListener('click', () => {
+            const url = normalizeUrl(urlBar.value);
+            if (url) navigate(url);
+        });
+
+        urlBar.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const url = normalizeUrl(urlBar.value);
+                if (url) navigate(url);
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            if (navPos > 0) { navPos--; navigate(navHistory[navPos]); }
+        });
+
+        fwdBtn.addEventListener('click', () => {
+            if (navPos < navHistory.length - 1) { navPos++; navigate(navHistory[navPos]); }
+        });
+
+        reloadBtn.addEventListener('click', () => {
+            try { frame.contentWindow.location.reload(); }
+            catch { frame.src = frame.src; }
+        });
+
+        fsBtn.addEventListener('click', async () => {
+            const wrap = document.getElementById('frame-wrap');
+            if (!document.fullscreenElement) {
+                await wrap.requestFullscreen().catch(() => {});
+            } else {
+                await document.exitFullscreen().catch(() => {});
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            fsBtn.textContent = document.fullscreenElement ? '\u2716' : '\u25BA';
+        });
+    </script>
+</body>
+</html>
